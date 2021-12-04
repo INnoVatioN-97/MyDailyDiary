@@ -8,20 +8,19 @@ void main() {
   runApp(const DiaryApplication());
 }
 
-
-Future<String> callPermissions() async {
-  Map<Permission, PermissionStatus> statuses = await [
-    Permission.camera,
-    Permission.storage,
-    Permission.manageExternalStorage
-  ].request();
-
-  if (statuses.values.every((element) => element.isGranted)) {
-    return 'success';
-  }
-
-  return 'failed';
-}
+// Future<String> callPermissions() async {
+//   Map<Permission, PermissionStatus> statuses = await [
+//     Permission.camera,
+//     Permission.storage,
+//     Permission.manageExternalStorage
+//   ].request();
+//
+//   if (statuses.values.every((element) => element.isGranted)) {
+//     return 'success';
+//   }
+//
+//   return 'failed';
+// }
 
 class DiaryApplication extends StatelessWidget {
   const DiaryApplication({Key? key}) : super(key: key);
@@ -48,17 +47,14 @@ class DiaryMainPage extends StatefulWidget {
 }
 
 class _DiaryMainPageState extends State<DiaryMainPage> {
-  // 오늘 하루일을 적을 form의 키값 관리를 해주는 객체
+  // 오늘 하루일을 적을 form 의 키값 관리를 해주는 객체
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   // form 내 적힌 텍스트를 컨트롤해줄 컨트롤러
   final TextEditingController _commentController = TextEditingController();
 
-  // 오늘 일기에 실을 사진을 관리할 File 객체 (Nullable)
-  XFile? photoFile;
-
-  // 사진을 가져와줄 ImagePicker 객체
-  ImagePicker _imagePicker = ImagePicker();
+  // 오늘 일기에 실을 사진의 경로를 저장할 변수
+  String? _photoPath;
 
   @override
   Widget build(BuildContext context) {
@@ -105,13 +101,18 @@ class _DiaryMainPageState extends State<DiaryMainPage> {
                         flex: 1,
                         child: ElevatedButton(
                           onPressed: () async {
-                            var status = await Permission.camera.request();
-                            if(status.isGranted) {
-                              final XFile? image = await _imagePicker.pickImage(
+                            var status = await Permission.photos.request();
+                            print(status.isGranted);
+                            if (status.isGranted) {
+                              // 사진을 가져와줄 ImagePicker 객체
+                              ImagePicker _imagePicker = ImagePicker();
+
+                              XFile? image = await _imagePicker.pickImage(
                                   source: ImageSource.gallery);
+
                               setState(() {
-                                photoFile = image;
-                                print(photoFile!.length());
+                                _photoFile = image;
+                                _photoPath = image!.path;
                               });
                             }
                           },
@@ -124,15 +125,25 @@ class _DiaryMainPageState extends State<DiaryMainPage> {
                       Expanded(
                         flex: 1,
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            print('텍스트 필드 값: ${_commentController.text}');
+                            setState(() {
+                              _photoPath = null;
+                              _commentController.text = '';
+                            });
+                          },
                           child: const Text(
                             '일기 저장하기',
                             style: TextStyle(fontSize: 12),
                           ),
                         ),
-                      )
+                      ),
                     ],
                   ),
+                  // Expanded(
+                  // flex: 1,
+                  Container(child: printCurrentPhoto()),
+                  // ),
                 ],
               ),
 
@@ -142,6 +153,16 @@ class _DiaryMainPageState extends State<DiaryMainPage> {
         ));
   }
 
+  Image? printCurrentPhoto() {
+    if (_photoPath == null) {
+      return null;
+    } else {
+      return Image.file(
+        File(_photoPath!),
+        width: double.infinity,
+      );
+    }
+  }
 
   @override
   void dispose() {
