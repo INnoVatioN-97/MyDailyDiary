@@ -111,7 +111,6 @@ class _DiaryMainPageState extends State<DiaryMainPage> {
                                   source: ImageSource.gallery);
 
                               setState(() {
-                                _photoFile = image;
                                 _photoPath = image!.path;
                               });
                             }
@@ -126,11 +125,28 @@ class _DiaryMainPageState extends State<DiaryMainPage> {
                         flex: 1,
                         child: ElevatedButton(
                           onPressed: () {
+                            String? _snackBarText;
                             print('텍스트 필드 값: ${_commentController.text}');
-                            setState(() {
-                              _photoPath = null;
-                              _commentController.text = '';
-                            });
+                            if (_photoPath != null) {
+                              setState(() {
+                                _photoPath = null;
+                                _commentController.text = '';
+                              });
+                            } else if(_photoPath == null && _commentController.text.trim().length>5){
+                              _snackBarText = '오늘 하루를 대표하는 사진을 한장 넣어주세요.';
+                            }else if(_photoPath != null && _commentController.text.trim().length<5){
+                              _snackBarText = '적어도 5자는 적어주세요... ㅜㅜ';
+                            }else if(_photoPath == null && _commentController.text.trim().length<5){
+                              _snackBarText = '뭐라도... 적어주세요... 글자 최소5글자에 사진을 포함해주세요.';
+                            }
+                            if(_snackBarText != null) {
+                              SnackBar snackBar = SnackBar(
+                                content: Text(_snackBarText!),
+                                backgroundColor: Colors.blueAccent,
+                              );
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBar);
+                            }
                           },
                           child: const Text(
                             '일기 저장하기',
