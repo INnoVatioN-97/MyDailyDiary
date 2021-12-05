@@ -5,6 +5,7 @@ class Diary{
 
   Diary(this.content, this.photoUrl, this.postedAt);
 
+  // 개발용
   @override
   String toString() {
     return '내용: $content 사진: $photoUrl 게시날짜: $postedAt';
