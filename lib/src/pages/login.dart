@@ -1,5 +1,7 @@
-import 'package:diary_app/pages/diary_page.dart';
+import 'package:diary_app/src/pages/diary_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -9,12 +11,23 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  Future<UserCredential> signInWithGoogle() async {
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser!.authentication;
+    final OAuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+    return await FirebaseAuth.instance.signInWithCredential(credential);
+  }
+
   @override
   Widget build(BuildContext context) {
     // 로그인 form 의 키값 관리를 해주는 객체
     final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-    // form 내 적힌 아이디, 비밀번호를 컨트롤해줄 컨트롤러들
+    // form 내 적힌 아이디, 비밀번비를 컨트롤해줄 컨트롤러들
     final TextEditingController _idController = TextEditingController();
     final TextEditingController _passwordController = TextEditingController();
 
@@ -72,10 +85,17 @@ class _LoginPageState extends State<LoginPage> {
                               context, '/', (_) => false);
                           // Navigator.replace(context, MaterialPageRoute(builder: (context) => const DiaryMainPage(title: '오늘 하루 일기장')),);
                           Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const DiaryMainPage(title: '오늘 하루 일기장')));
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const DiaryMainPage(
+                                title: '오늘 하루 일기장',
+                                userObj: {
+                                  'displayName': 'displayName 오류',
+                                  'uid': 'uid 오류'
+                                },
+                              ),
+                            ),
+                          );
                         },
                         child: const Text(
                           '로그인',
@@ -91,16 +111,7 @@ class _LoginPageState extends State<LoginPage> {
                     Expanded(
                       flex: 1,
                       child: ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.pushNamedAndRemoveUntil(
-                              context, '/', (_) => false);
-                          // Navigator.replace(context, MaterialPageRoute(builder: (context) => const DiaryMainPage(title: '오늘 하루 일기장')),);
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const DiaryMainPage(title: '오늘 하루 일기장')));
-                        },
+                        onPressed: signInWithGoogle,
                         icon: Image.network(
                           'http://pngimg.com/uploads/google/google_PNG19635.png',
                           fit: BoxFit.cover,
@@ -116,16 +127,17 @@ class _LoginPageState extends State<LoginPage> {
                     Expanded(
                       flex: 1,
                       child: ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.pushNamedAndRemoveUntil(
-                              context, '/', (_) => false);
-                          // Navigator.replace(context, MaterialPageRoute(builder: (context) => const DiaryMainPage(title: '오늘 하루 일기장')),);
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const DiaryMainPage(title: '오늘 하루 일기장')));
-                        },
+                        onPressed: () {},
+                        // onPressed: () {
+                        //   Navigator.pushNamedAndRemoveUntil(
+                        //       context, '/', (_) => false);
+                        //   // Navigator.replace(context, MaterialPageRoute(builder: (context) => const DiaryMainPage(title: '오늘 하루 일기장')),);
+                        //   Navigator.pushReplacement(
+                        //       context,
+                        //       MaterialPageRoute(
+                        //           builder: (context) =>
+                        //               const DiaryMainPage(title: '오늘 하루 일기장')));
+                        // },
                         icon: Image.network(
                           'http://pngimg.com/uploads/google/google_PNG19635.png',
                           fit: BoxFit.cover,

@@ -1,5 +1,6 @@
 import 'dart:io';
-import 'package:diary_app/component/diary_bean.dart';
+import 'package:diary_app/src/component/diary_bean.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -7,8 +8,10 @@ import 'package:permission_handler/permission_handler.dart';
 
 class DiaryMainPage extends StatefulWidget {
   final String title;
+  final Map<String, String> userObj;
 
-  const DiaryMainPage({Key? key, required this.title}) : super(key: key);
+  const DiaryMainPage({Key? key, required this.title, required this.userObj})
+      : super(key: key);
 
   @override
   State<DiaryMainPage> createState() => _DiaryMainPageState();
@@ -32,10 +35,10 @@ class _DiaryMainPageState extends State<DiaryMainPage> {
         appBar: AppBar(
             title: Center(
                 child: Text(
-                  widget.title,
-                  style: const TextStyle(
-                      fontSize: 17, color: Colors.white, fontWeight: FontWeight.w700),
-                ))),
+          '${widget.userObj['displayName']}의 ${widget.title}',
+          style: const TextStyle(
+              fontSize: 17, color: Colors.white, fontWeight: FontWeight.w700),
+        ))),
         body: Padding(
           padding: const EdgeInsets.all(10.0),
           child: Column(
@@ -98,8 +101,11 @@ class _DiaryMainPageState extends State<DiaryMainPage> {
                             String? _snackBarText = '';
                             if (_photoPath != null) {
                               print('텍스트 필드 값: ${_commentController.text}');
-                              Diary diary = Diary(_commentController.text,
-                                  _photoPath!, DateTime.now());
+                              Diary diary = Diary(
+                                  creator: widget.userObj['uid'],
+                                  content: _commentController.text,
+                                  photoUrl: _photoPath!,
+                                  postedAt: DateTime.now());
 
                               print(diary.toString());
                               setState(() {
@@ -119,7 +125,7 @@ class _DiaryMainPageState extends State<DiaryMainPage> {
                             } else if (_photoPath == null &&
                                 _commentController.text.trim().length < 5) {
                               _snackBarText =
-                              '뭐라도 5글자라도... 적어주세요...그리고 사진도 포함해주세요.';
+                                  '뭐라도 5글자라도... 적어주세요...그리고 사진도 포함해주세요.';
                             }
                             if (_snackBarText != '') {
                               SnackBar snackBar = SnackBar(
@@ -144,10 +150,19 @@ class _DiaryMainPageState extends State<DiaryMainPage> {
               ),
               Container(
                 child: printDiaries(_diaryList),
-              )
+              ),
+              ElevatedButton.icon(
+                  onPressed: () {FirebaseAuth.instance.signOut();},
+                  icon: Icon(Icons.logout),
+                  label: Text('로그아웃')),
+
             ],
+            
           ),
-        ));
+          
+        ),
+      
+    );
   }
 
   Image? printCurrentPhoto() {
