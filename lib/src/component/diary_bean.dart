@@ -5,7 +5,7 @@ class Diary{
   DateTime postedAt;  // 게시날짜
 
 
-  Diary({this.creator, required this.content, required this.photoUrl, required this.postedAt});
+  Diary({required this.content, required this.photoUrl, required this.postedAt});
 
   // 개발용
   @override

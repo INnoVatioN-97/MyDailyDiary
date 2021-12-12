@@ -1,4 +1,3 @@
-import 'package:diary_app/src/pages/diary_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -14,7 +13,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<UserCredential> signInWithGoogle() async {
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
     final GoogleSignInAuthentication googleAuth =
-        await googleUser!.authentication;
+    await googleUser!.authentication;
     final OAuthCredential credential = GoogleAuthProvider.credential(
       accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
@@ -38,121 +37,47 @@ class _LoginPageState extends State<LoginPage> {
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Card(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Form(
-                  key: _formKey,
-                  child: Column(children: [
-                    TextFormField(
-                      controller: _idController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: '아이디',
-                      ),
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (value) {
-                        if (value!.trim().length < 2) {
-                          return '제대로 입력해주세요.';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: '비밀번호',
-                      ),
-                      keyboardType: TextInputType.visiblePassword,
-                      validator: (value) {
-                        if (value!.trim().length < 2) {
-                          return '제대로 입력해주세요.';
-                        }
-                        return null;
-                      },
-                    ),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Column(children: [
                     SizedBox(
                       width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushNamedAndRemoveUntil(
-                              context, '/', (_) => false);
-                          // Navigator.replace(context, MaterialPageRoute(builder: (context) => const DiaryMainPage(title: '오늘 하루 일기장')),);
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const DiaryMainPage(
-                                title: '오늘 하루 일기장',
-                                userObj: {
-                                  'displayName': 'displayName 오류',
-                                  'uid': 'uid 오류'
-                                },
-                              ),
-                            ),
-                          );
-                        },
-                        child: const Text(
-                          '로그인',
-                          style: TextStyle(fontSize: 12),
-                        ),
-                      ),
-                    ),
-                  ]),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Expanded(
-                      flex: 1,
                       child: ElevatedButton.icon(
                         onPressed: signInWithGoogle,
-                        icon: Image.network(
-                          'http://pngimg.com/uploads/google/google_PNG19635.png',
-                          fit: BoxFit.cover,
-                          width: 30,
-                          height: 30,
-                        ),
+
+                        icon: Image.asset('asset/images/google_icon.png',
+                            width: 30, height: 30, fit: BoxFit.cover),
                         label: const Text(
                           '구글 로그인',
                           style: TextStyle(fontSize: 12),
                         ),
+                        style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.all(Colors.redAccent)),
                       ),
                     ),
-                    Expanded(
-                      flex: 1,
+                    SizedBox(
+                      width: double.infinity,
                       child: ElevatedButton.icon(
                         onPressed: () {},
-                        // onPressed: () {
-                        //   Navigator.pushNamedAndRemoveUntil(
-                        //       context, '/', (_) => false);
-                        //   // Navigator.replace(context, MaterialPageRoute(builder: (context) => const DiaryMainPage(title: '오늘 하루 일기장')),);
-                        //   Navigator.pushReplacement(
-                        //       context,
-                        //       MaterialPageRoute(
-                        //           builder: (context) =>
-                        //               const DiaryMainPage(title: '오늘 하루 일기장')));
-                        // },
-                        icon: Image.network(
-                          'http://pngimg.com/uploads/google/google_PNG19635.png',
-                          fit: BoxFit.cover,
-                          width: 30,
-                          height: 30,
-                        ),
+                        icon: Image.asset('asset/images/github_icon.png',
+                            width: 30, height: 30, fit: BoxFit.cover),
                         label: const Text(
                           '깃허브 로그인',
                           style: TextStyle(fontSize: 12),
                         ),
+                        style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(
+                                const Color(0xff303030))),
                       ),
                     ),
-                  ],
-                ),
-              ],
+                  ]),
+                ],
+              ),
             ),
           ),
         ),

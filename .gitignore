@@ -77,3 +77,4 @@ lib/generated_plugin_registrant.dart
 
 # End of https://www.toptal.com/developers/gitignore/api/flutter,firebase
 /android/app/google-services.json
+/asset/images/
