@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -13,12 +15,25 @@ class _LoginPageState extends State<LoginPage> {
   Future<UserCredential> signInWithGoogle() async {
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
     final GoogleSignInAuthentication googleAuth =
-    await googleUser!.authentication;
+        await googleUser!.authentication;
     final OAuthCredential credential = GoogleAuthProvider.credential(
       accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
     );
     return await FirebaseAuth.instance.signInWithCredential(credential);
+  }
+
+  Future<UserCredential> signInWithFacebook() async {
+    // var status = await Permission.request();
+    // Trigger the sign-in flow
+    final LoginResult loginResult = await FacebookAuth.instance.login();
+
+    // Create a credential from the access token
+    final OAuthCredential facebookAuthCredential =
+        FacebookAuthProvider.credential(loginResult.accessToken!.token);
+
+    // Once signed in, return the UserCredential
+    return FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
   }
 
   @override
@@ -30,6 +45,12 @@ class _LoginPageState extends State<LoginPage> {
     final TextEditingController _idController = TextEditingController();
     final TextEditingController _passwordController = TextEditingController();
 
+    const TextStyle buttonText = TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w500,
+
+    );
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('로그인 페이지'),
@@ -38,7 +59,7 @@ class _LoginPageState extends State<LoginPage> {
         padding: const EdgeInsets.all(20.0),
         child: Card(
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(16.0),
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -48,12 +69,11 @@ class _LoginPageState extends State<LoginPage> {
                       width: double.infinity,
                       child: ElevatedButton.icon(
                         onPressed: signInWithGoogle,
-
                         icon: Image.asset('asset/images/google_icon.png',
                             width: 30, height: 30, fit: BoxFit.cover),
                         label: const Text(
                           '구글 로그인',
-                          style: TextStyle(fontSize: 12),
+                          style: buttonText,
                         ),
                         style: ButtonStyle(
                             backgroundColor:
@@ -63,16 +83,16 @@ class _LoginPageState extends State<LoginPage> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
-                        onPressed: () {},
-                        icon: Image.asset('asset/images/github_icon.png',
-                            width: 30, height: 30, fit: BoxFit.cover),
+                        onPressed: signInWithFacebook,
+                        icon: Image.asset('asset/images/facebook_icon.png',
+                            width: 35, height: 35, fit: BoxFit.cover),
                         label: const Text(
-                          '깃허브 로그인',
-                          style: TextStyle(fontSize: 12),
+                          '페이스북 로그인',
+                          style: buttonText,
                         ),
                         style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all(
-                                const Color(0xff303030))),
+                                const Color(0xff3b5998))),
                       ),
                     ),
                   ]),
