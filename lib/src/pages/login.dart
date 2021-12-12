@@ -52,52 +52,53 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     return Scaffold(
+      backgroundColor: Color(0xfff),
       appBar: AppBar(
         title: const Text('로그인 페이지'),
       ),
       body: Padding(
+
         padding: const EdgeInsets.all(20.0),
-        child: Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Column(children: [
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: signInWithGoogle,
-                        icon: Image.asset('asset/images/google_icon.png',
-                            width: 30, height: 30, fit: BoxFit.cover),
-                        label: const Text(
-                          '구글 로그인',
-                          style: buttonText,
-                        ),
-                        style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all(Colors.redAccent)),
+        child: Padding(
+
+          padding: const EdgeInsets.all(16.0),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Column(children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: signInWithGoogle,
+                      icon: Image.asset('asset/images/google_icon.png',
+                          width: 30, height: 30, fit: BoxFit.cover),
+                      label: const Text(
+                        '구글 로그인',
+                        style: buttonText,
                       ),
+                      style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.all(Colors.redAccent)),
                     ),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: signInWithFacebook,
-                        icon: Image.asset('asset/images/facebook_icon.png',
-                            width: 35, height: 35, fit: BoxFit.cover),
-                        label: const Text(
-                          '페이스북 로그인',
-                          style: buttonText,
-                        ),
-                        style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(
-                                const Color(0xff3b5998))),
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: signInWithFacebook,
+                      icon: Image.asset('asset/images/facebook_icon.png',
+                          width: 35, height: 35, fit: BoxFit.cover),
+                      label: const Text(
+                        '페이스북 로그인',
+                        style: buttonText,
                       ),
+                      style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(
+                              const Color(0xff3b5998))),
                     ),
-                  ]),
-                ],
-              ),
+                  ),
+                ]),
+              ],
             ),
           ),
         ),

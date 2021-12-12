@@ -14,7 +14,8 @@ class DiaryApplication extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        backgroundColor: const Color(0xfff1f2f6),
+        primarySwatch: Colors.brown,
       ),
       home: const App(),
     );
