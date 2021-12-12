@@ -26,6 +26,9 @@ class _DiaryMainPageState extends State<DiaryMainPage> {
   // form 내 적힌 텍스트를 컨트롤해줄 컨트롤러
   final TextEditingController _commentController = TextEditingController();
 
+  // 게시글 삭제시 컨펌 창을 위한 GlobalKey 생성
+  final scaffoldKey = GlobalKey<ScaffoldState>();
+
   // 오늘 일기에 실을 사진의 경로를 저장할 변수
   String? _photoPath;
 
@@ -34,6 +37,7 @@ class _DiaryMainPageState extends State<DiaryMainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       appBar: AppBar(
           title: Center(
               child: Text(
@@ -174,28 +178,11 @@ class _DiaryMainPageState extends State<DiaryMainPage> {
         File(_photoPath!),
         width: double.infinity,
       );
-      // print('width: ${image.width} \n height: ${image.height}');
       return image;
     }
   }
 
-  // return new ListView.builder(
-  //     scrollDirection: Axis.vertical,
-  //     itemCount: snapshot.data.documents.length,
-  //     itemBuilder: (context, index) {
-  //     if (index == 0) {
-  //     return someWidget, // return the widget you want as "header" here
-  //     } else {
-  //     return _buildList( context, snapshot.data.documents[index-1]),
-  //     }
-  //     }
-  //     );
-
   Widget? printDiaries() {
-    // loadDiaries();
-    // if (_diaryList == null) {
-    //   return null;
-    // } else {
     return Expanded(
       child: StreamBuilder<QuerySnapshot>(
           stream: FirebaseFirestore.instance
@@ -209,10 +196,6 @@ class _DiaryMainPageState extends State<DiaryMainPage> {
                 child: CircularProgressIndicator(),
               );
             } else {
-              // return ListView(
-              //
-              // );
-
               return ListView.builder(
                 itemBuilder: (context, index) {
                   var list = snapshot.data!.docs.toList().reversed;
@@ -232,30 +215,26 @@ class _DiaryMainPageState extends State<DiaryMainPage> {
                       // _diaryList 가 null 인 경우 (초기화 먼저 진행)
                       _diaryList = [diary];
                     }
-                    // _diaryList!.add(diary);
-
                   }
                   // print('list: $list');
                   if (list.isEmpty) {
-                    return Container();
+                    return const CircularProgressIndicator();
                   } else {
                     return Padding(
-                      padding: const EdgeInsets.all(12.0),
+                      padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(24.0),
+                        borderRadius: BorderRadius.circular(25.0),
                         child: Card(
                           color: const Color.fromRGBO(158, 158, 158, 0.3),
                           child: Column(
                             children: [
                               Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                padding:
+                                    const EdgeInsets.fromLTRB(0, 10, 0, 10),
                                 child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  child: SizedBox(
-                                    width: double.infinity,
-                                    child: Image.network(
-                                      _diaryList![index].photoUrl,
-                                    ),
+                                  borderRadius: BorderRadius.circular(24.0),
+                                  child: Image.network(
+                                    _diaryList![index].photoUrl,
                                   ),
                                 ),
                               ),
@@ -269,7 +248,35 @@ class _DiaryMainPageState extends State<DiaryMainPage> {
                                     .format(_diaryList![index].postedAt),
                                 style: const TextStyle(
                                     fontSize: 12, fontWeight: FontWeight.w300),
-                              )
+                              ),
+                              ElevatedButton.icon(
+                                  onPressed: () async {
+                                    SnackBar snackBar = SnackBar(
+                                      content: const Text('이 게시글을 삭제하겠습니까?'),
+                                      backgroundColor: Colors.blueAccent,
+                                      action: SnackBarAction(
+                                        label: "삭제하기",
+                                        textColor: Colors.white,
+                                        onPressed: () async {
+                                          print(generateDocName(
+                                              _diaryList![index].postedAt));
+
+                                          deleteDiary(widget.userObj['uid']!,
+                                              _diaryList![index].postedAt);
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(const SnackBar(
+                                            duration: Duration(seconds: 1),
+                                            content: Text('삭제 되었습니다.'),
+                                            backgroundColor: Colors.blueAccent,
+                                          ));
+                                        },
+                                      ),
+                                    );
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(snackBar);
+                                  },
+                                  icon: const Icon(Icons.delete),
+                                  label: const Text('삭제하기')),
                             ],
                           ),
                         ),
@@ -291,7 +298,7 @@ class _DiaryMainPageState extends State<DiaryMainPage> {
 
   Future<void> uploadImageToStorage(Diary diary) async {
     String creator = widget.userObj['uid']!;
-    String imageName = DateTime.now().toString();
+    String imageName = generateDocName(diary.postedAt);
     final ref = FirebaseStorage.instance
         .ref()
         .child("diaryPhotos")
@@ -309,12 +316,51 @@ class _DiaryMainPageState extends State<DiaryMainPage> {
         .collection('user_diaries')
         .doc(widget.userObj['uid']!)
         .collection('diary')
-        .doc(diary.postedAt.toString())
+        .doc(generateDocName(diary.postedAt))
         .set({
       'content': diary.content,
       'photoUrl': diary.photoUrl,
       'postedAt': diary.postedAt
     });
+    setState(() {
+      _diaryList = null; //_diaryList 를 무효화시켜 다시 렌더링
+    });
+  }
+
+  String generateDocName(DateTime time) {
+    final generatedDocName =
+        '${time.year}-${time.month}-${time.day}-${time.hour}-${time.minute}-${time.second}-${time.millisecond}';
+    // final generatedDocName =  time.toString().substring(0, time.toString().length-4);
+    // print(generatedDocName.hashCode);
+    return generatedDocName;
+  }
+
+  void deleteDiary(String creator, DateTime time) async {
+    await FirebaseFirestore.instance
+        .collection('user_diaries')
+        .doc(creator)
+        .collection('diary')
+        .doc(generateDocName(time))
+        .delete()
+        .then((value) async => await FirebaseStorage.instance
+            .ref()
+            .child("diaryPhotos")
+            .child(creator)
+            .child(generateDocName(time) + '.jpg')
+            .delete()
+            .then((value) => print('photo Deleted.'))
+            .catchError((error) => print("Failed to delete photo: $error")))
+        .catchError((error) => print("Failed to delete post: $error"));
+
+    // await FirebaseStorage.instance
+    //     .ref()
+    //     .child("diaryPhotos")
+    //     .child(creator)
+    //     .child(generateDocName(time) + '.jpg')
+    //     .delete()
+    //     .then((value) => print('photo Deleted.'))
+    //     .catchError((error) => print("Failed to delete post: $error"));
+
     setState(() {
       _diaryList = null; //_diaryList 를 무효화시켜 다시 렌더링
     });
