@@ -263,12 +263,6 @@ class _DiaryMainPageState extends State<DiaryMainPage> {
 
                                           deleteDiary(widget.userObj['uid']!,
                                               _diaryList![index].postedAt);
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(const SnackBar(
-                                            duration: Duration(seconds: 1),
-                                            content: Text('삭제 되었습니다.'),
-                                            backgroundColor: Colors.blueAccent,
-                                          ));
                                         },
                                       ),
                                     );
@@ -351,6 +345,13 @@ class _DiaryMainPageState extends State<DiaryMainPage> {
             .then((value) => print('photo Deleted.'))
             .catchError((error) => print("Failed to delete photo: $error")))
         .catchError((error) => print("Failed to delete post: $error"));
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(
+      duration: Duration(seconds: 1),
+      content: Text('삭제 되었습니다.'),
+      backgroundColor: Colors.blueAccent,
+    ));
 
     // await FirebaseStorage.instance
     //     .ref()
