@@ -355,7 +355,7 @@ class _DiaryMainPageState extends State<DiaryMainPage> {
       content: Text('삭제 되었습니다.'),
       backgroundColor: Colors.blueAccent,
     ));
-
+// test
     setState(() {
       _diaryList = []; //_diaryList 를 무효화시켜 다시 렌더링
     });
