@@ -356,15 +356,6 @@ class _DiaryMainPageState extends State<DiaryMainPage> {
       backgroundColor: Colors.blueAccent,
     ));
 
-    // await FirebaseStorage.instance
-    //     .ref()
-    //     .child("diaryPhotos")
-    //     .child(creator)
-    //     .child(generateDocName(time) + '.jpg')
-    //     .delete()
-    //     .then((value) => print('photo Deleted.'))
-    //     .catchError((error) => print("Failed to delete post: $error"));
-
     setState(() {
       _diaryList = []; //_diaryList 를 무효화시켜 다시 렌더링
     });
